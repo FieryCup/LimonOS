@@ -2,7 +2,8 @@
 local monitor = peripheral.find('monitor')
 local rs = peripheral.find('rsBridge')
 local speaker = peripheral.find("speaker")
-local width, height = monitor.getSize()
+monitor.setTextScale(0.75)
+local width_monitor, height_monitor = monitor.getSize()
 local space = " "
 local default_bg_color = colors.black
 local list_size = 36
@@ -13,14 +14,14 @@ local title = "RS Info"
 reboot_button_size = reboot_button_size - 1
 monitor.setTextColor(colors.white)
 monitor.setBackgroundColor(default_bg_color)
-monitor.setTextScale(0.75)
 monitor.clear()
 
-local win_rs_info = window.create(monitor, 1, 1, width, height)
+local win_rs_info = window.create(monitor, 1, 1, width_monitor, height_monitor)
 
 function progressbar(n, max, color, warningColor, fullColor, secondColor, size, screen)
     local bar = math.floor((n / max) * size)
     local bar_inv = size - bar
+    local space = " "
     local bar_text = string.rep(space, bar)
     local bar_text_inv = string.rep(space, bar_inv)
     if bar < size / 2 then
@@ -33,6 +34,7 @@ function progressbar(n, max, color, warningColor, fullColor, secondColor, size, 
     screen.write(bar_text)
     screen.setBackgroundColor(secondColor)
     screen.write(bar_text_inv)
+    screen.setBackgroundColor(default_bg_color)
 end
 --[[
 function rsbridge_nf_error()
@@ -45,11 +47,12 @@ end
 ]]--
 
 function rs_info(screen)
-    screen.setCursorPos(((width / 2) - (string.len(title) / 2)), 1)
+    local width_screen, height_screen = screen.getSize()
+    screen.setCursorPos(((width_screen / 2) - (string.len(title) / 2)), 1)
     screen.write(title)
     screen.setCursorPos(1, 2)
     screen.write("Energy:       ")
-    screen.write(progressbar(rs.getEnergyStorage(), rs.getMaxEnergyStorage(), colors.red, colors.orange, colors.green, colors.gray, progressbar_size, screen))
+    progressbar(rs.getEnergyStorage(), rs.getMaxEnergyStorage(), colors.red, colors.orange, colors.green, colors.gray, progressbar_size, screen)
     screen.setBackgroundColor(default_bg_color)
     screen.write(" "..rs.getEnergyStorage().." / "..rs.getMaxEnergyStorage().." "..rs.getEnergyUsage().." FE/t".."               ")
     screen.setCursorPos(1, 3)
@@ -59,7 +62,7 @@ function rs_info(screen)
         item_count = item_count + item.amount
     end
     screen.write("Item memory:  ")
-    screen.write(progressbar(item_count, rs.getMaxItemDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen))
+    progressbar(item_count, rs.getMaxItemDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen)
     screen.setBackgroundColor(default_bg_color)
     screen.write(" "..item_count.." / "..rs.getMaxItemDiskStorage().."               ")
     screen.setCursorPos(1, 4)
@@ -72,7 +75,7 @@ function rs_info(screen)
         speaker.playSound("minecraft:block.bell.use")
     end
     screen.write("Fluid memory: ")
-    screen.write(progressbar(fluid_count, rs.getMaxFluidDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen))
+    progressbar(fluid_count, rs.getMaxFluidDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen)
     screen.setBackgroundColor(default_bg_color)
     screen.write(" "..fluid_count.." / "..rs.getMaxFluidDiskStorage().."               ")
     screen.setCursorPos(1, 4)
@@ -89,7 +92,7 @@ function rs_info(screen)
     local g = 1
     local k = 1
     local h = 5
-    local list_height = height - 2
+    local list_height = height_screen - 2
     for i, item in ipairs(list) do
         o = string.sub(item.displayName, 5, string.len(item.displayName)-1)
         if g >= list_height then
@@ -109,16 +112,16 @@ function rs_info(screen)
     end
     screen.setBackgroundColor(colors.red)
     screen.setTextColor(colors.black)
-    screen.setCursorPos(width - reboot_button_size, 1)
+    screen.setCursorPos(width_screen - reboot_button_size, 1)
     screen.write("   ")
-    screen.setCursorPos(width - reboot_button_size, 2)
+    screen.setCursorPos(width_screen - reboot_button_size, 2)
     screen.write(" X ")
-    screen.setCursorPos(width - reboot_button_size, 3)
+    screen.setCursorPos(width_screen - reboot_button_size, 3)
     screen.write("   ")
     screen.setTextColor(colors.white)
     screen.setBackgroundColor(default_bg_color)
     local event, side, xPos, yPos = os.pullEvent("monitor_touch")
-    if event == "monitor_touch" and (xPos >= width - reboot_button_size) and (yPos <= reboot_button_size + 1) then
+    if event == "monitor_touch" and (xPos >= width_screen - reboot_button_size) and (yPos <= reboot_button_size + 1) then
         print("Pressed")
         screen.clear()
         os.reboot()
@@ -128,10 +131,10 @@ end
 while true do
     win_rs_info_visible = 1
     if win_rs_info_visible == 1 then
+        rs_info(win_rs_info)
         win_rs_info.setVisible(true)
     else
         win_rs_info.setVisible(false)
     end
-    rs_info(win_rs_info)
     sleep(1)
 end
