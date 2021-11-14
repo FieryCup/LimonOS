@@ -1,3 +1,4 @@
+
 local monitor = peripheral.find('monitor')
 local rs = peripheral.find('rsBridge')
 local speaker = peripheral.find("speaker")

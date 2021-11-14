@@ -72,6 +72,7 @@ function load_autoupdate_files()
     local allText_startup = httpResponce_startup.readAll()
     fs_startup.write(allText_startup)
     fs_startup.close()
+    print("Startup loaded")
     httpResponce_startup.close()
 
     local file_main = "main.lua"
@@ -80,6 +81,7 @@ function load_autoupdate_files()
     local allText_main = httpResponce_main.readAll()
     fs_main.write(allText_main)
     fs_main.close()
+    print("Main loaded")
     httpResponce_main.close()
 
     local file_version = "version.lua"
@@ -88,6 +90,7 @@ function load_autoupdate_files()
     local allText_version = httpResponce_version.readAll()
     fs_version.write(allText_version)
     fs_version.close()
+    print("Version loaded")
     httpResponce_version.close()
     print("New version downloaded!")
     print("Rebooting to apply changes...")
