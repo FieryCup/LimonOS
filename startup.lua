@@ -38,12 +38,13 @@ function autoupdate()
         printError("Error source check!")
         break 
     end
-    local source_version_status, _ = http.checkURL(source_version)
-    if not source_version_status then
-        printError("Error source version check!")
+    sleep(0.5)
+    local second_source_status, _ = http.checkURL(source_version)
+    if not second_source_status then
+        printError("Error second source check!")
         break 
     end
-    print("Source version check ... "..tostring(source_status))
+    print("Second source check ... "..tostring(second_source_status))
     local httpResponce_version = http.get(source_version)
     local allText_version = httpResponce_version.readAll()
     source_version = tonumber(allText_version)
