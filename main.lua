@@ -1,6 +1,7 @@
 local monitor = peripheral.find('monitor')
 local rs = peripheral.find('rsBridge')
 local speaker = peripheral.find("speaker")
+local width, height = monitor.getSize()
 local space = " "
 local default_bg_color = colors.black
 local list_size = 36
@@ -40,7 +41,7 @@ function rsbridge_nf_error()
 end
 ]]--
 while true do
-    monitor.setCursorPos((width - string.len(title)) / 2, 1)
+    monitor.setCursorPos(((width / 2) - (string.len(title) / 2)), 1)
     monitor.write(title)
     monitor.setCursorPos(1, 2)
     monitor.write("Energy:       ")
@@ -84,7 +85,6 @@ while true do
     local g = 1
     local k = 1
     local h = 5
-    local width, height = monitor.getSize()
     local list_height = height - 2
     for i, item in ipairs(list) do
         o = string.sub(item.displayName, 5, string.len(item.displayName)-1)
