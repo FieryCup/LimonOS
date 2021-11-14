@@ -35,28 +35,34 @@ local width, height = monitor.getSize()
 
 function autoupdate()
     monitor.setTextColor(message_text_color)
-    monitor.setCursorPos(1, height)
     local source_status, _ = http.checkURL(source_main)
+    monitor.setCursorPos(1, height)
     monitor.write("Source check ... "..tostring(source_status))
     if source_status == false then
+        monitor.setCursorPos(1, height)
         monitor.write("Error source check!")
     end
     local second_source_status, _ = http.checkURL(source_main)
     if second_source_status == false then
+        monitor.setCursorPos(1, height)
         monitor.write("Error second source check!")
     end
     monitor.write("Second source check ... "..tostring(second_source_status))
     local third_source_status, _ = http.checkURL(source_version)
     if third_source_status == false then
+        monitor.setCursorPos(1, height)
         monitor.write("Error third source check!")
     end
+    monitor.setCursorPos(1, height)
     monitor.write("Third source check ... "..tostring(third_source_status))
     sleep(1)
     local httpResponce_version = http.get(source_version)
     local allText_version = httpResponce_version.readAll()
     local source_v = tonumber(string.sub(allText_version, string.len("version =  ")))
+    monitor.setCursorPos(1, height)
     monitor.write("Source version "..source_v)
     local version = tonumber(string.sub(fs.open("version.lua","r").readAll(), string.len("version =  ")))
+    monitor.setCursorPos(1, height)
     monitor.write("Version "..version)
     local version_check_status = "Error"
     if version < source_v then
@@ -65,6 +71,7 @@ function autoupdate()
     elseif version >= source_v then
         version_check_status = "Latest version"
     end
+    monitor.setCursorPos(1, height)
     monitor.write("Version check ... "..version_check_status)
 end
 
@@ -76,6 +83,7 @@ function load_autoupdate_files()
     local allText_startup = httpResponce_startup.readAll()
     fs_startup.write(allText_startup)
     fs_startup.close()
+    monitor.setCursorPos(1, height)
     monitor.write("Startup downloaded!")
     httpResponce_startup.close()
 
@@ -85,6 +93,7 @@ function load_autoupdate_files()
     local allText_main = httpResponce_main.readAll()
     fs_main.write(allText_main)
     fs_main.close()
+    monitor.setCursorPos(1, height)
     monitor.write("Main downloaded!")
     httpResponce_main.close()
 
@@ -94,10 +103,13 @@ function load_autoupdate_files()
     local allText_version = httpResponce_version.readAll()
     fs_version.write(allText_version)
     fs_version.close()
+    monitor.setCursorPos(1, height)
     monitor.write("Version downloaded!")
     httpResponce_version.close()
+    monitor.setCursorPos(1, height)
     monitor.write("New version downloaded!")
     sleep(0.5)
+    monitor.setCursorPos(1, height)
     monitor.write("Rebooting to apply changes...")
     sleep(1)
     os.reboot()
