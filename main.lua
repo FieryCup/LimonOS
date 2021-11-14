@@ -132,6 +132,6 @@ while true do
     else
         win_rs_info.setVisible(false)
     end
-    win_rs_info("win_rs_info")
+    rs_info(win_rs_info)
     sleep(1)
 end
