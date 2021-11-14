@@ -34,22 +34,28 @@ local width, height = monitor.getSize()
 function autoupdate()
     local source_status, _ = http.checkURL(source)
     print("Source check ... "..tostring(source_status))
-    if not source_status then
+    if source_status == false then
         printError("Error source check!")
-        break 
     end
-    sleep(0.5)
     local second_source_status, _ = http.checkURL(source_version)
-    if not second_source_status then
+    if second_source_status == false then
         printError("Error second source check!")
-        break 
     end
     print("Second source check ... "..tostring(second_source_status))
+    sleep(1)
     local httpResponce_version = http.get(source_version)
     local allText_version = httpResponce_version.readAll()
-    source_version = tonumber(allText_version)
-    print("Source version "..source_version)
-    print("Version check ... ")
+    local source_v = tonumber(string.sub(allText_version, string.len("version =  ")))
+    print("Source version "..source_v)
+    local version = tonumber(string.sub(fs.open("version.lua","r").readAll(), string.len("version =  ")))
+    print("Version "..version)
+    local version_check_status = "Error"
+    if version < source_v then
+        version_check_status = "Outdated version"
+    elseif version >= source_v then
+        version_check_status = "Latest version"
+    end
+    print("Version check ... "..version_check_status)
     local httpResponce = http.get(source)
     local allText = httpResponce.readAll()
     httpResponce.close()
