@@ -3,7 +3,8 @@ local monitor = peripheral.find('monitor')
 local speaker = peripheral.find("speaker")
 local width, height = monitor.getSize()
 local space = " "
-local source = "https://httpbin.org/ip"
+local source = "https://github.com/LimonchikTM/LimonOS"
+local source_version = "https://raw.githubusercontent.com/LimonchikTM/LimonOS/main/version.lua"
 local text_color = colors.yellow
 local second_text_color = colors.white
 local text_scale = 1.5
@@ -33,10 +34,24 @@ local width, height = monitor.getSize()
 function autoupdate()
     local source_status, _ = http.checkURL(source)
     print("Source check ... "..tostring(source_status))
+    if not source_status then
+        printError("Error source check!")
+        break 
+    end
+    local source_version_status, _ = http.checkURL(source_version)
+    if not source_version_status then
+        printError("Error source version check!")
+        break 
+    end
+    print("Source version check ... "..tostring(source_status))
+    local httpResponce_version = http.get(source_version)
+    local allText_version = httpResponce_version.readAll()
+    source_version = tonumber(allText_version)
+    print("Source version "..source_version)
+    print("Version check ... ")
     local httpResponce = http.get(source)
     local allText = httpResponce.readAll()
     httpResponce.close()
-    print("Version check ... ")
 end
 
 monitor.setTextColor(text_color)
