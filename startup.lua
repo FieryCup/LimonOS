@@ -89,9 +89,9 @@ function load_autoupdate_files()
     fs_version.write(allText_version)
     fs_version.close()
     httpResponce_version.close()
-    
     print("New version downloaded!")
     print("Rebooting to apply changes...")
+    sleep(1)
     os.reboot()
 end
 
