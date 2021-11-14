@@ -2,21 +2,41 @@
 local monitor = peripheral.find('monitor')
 local rs = peripheral.find('rsBridge')
 local speaker = peripheral.find("speaker")
-monitor.setTextScale(0.75)
+monitor.setTextScale(0.5)
 local width_monitor, height_monitor = monitor.getSize()
 local space = " "
 local default_bg_color = colors.black
+local desktop_bg_color = colors.gray
 local list_size = 36
 local list_horizontal_space = 2
 local progressbar_size = 20
 local reboot_button_size = 3
 local title = "RS Info"
+color = {
+    c1 = colors.black,
+    c2 = colors.blue,
+    c3 = colors.brown,
+    c4 = colors.cyan,
+    c5 = colors.gray,
+    c6 = colors.green,
+    c7 = colors.lightBlue,
+    c8 = colors.lightGray,
+    c9 = colors.lime,
+    c10 = colors.magenta,
+    c11 = colors.orange,
+    c12 = colors.pink,
+    c13 = colors.purple,
+    c14 = colors.red,
+    c15 = colors.white,
+    c16 = colors.yellow
+}
 reboot_button_size = reboot_button_size - 1
 monitor.setTextColor(colors.white)
 monitor.setBackgroundColor(default_bg_color)
 monitor.clear()
 
 local win_rs_info = window.create(monitor, 1, 1, width_monitor, height_monitor)
+local win_desktop = window.create(monitor, 1, 1, width_monitor, height_monitor)
 
 function progressbar(n, max, color, warningColor, fullColor, secondColor, size, screen)
     local bar = math.floor((n / max) * size)
@@ -45,7 +65,7 @@ function rsbridge_nf_error()
     print("Error! RS Bridge not found. ")
 end
 ]]--
-
+--Rs_info
 function rs_info(screen)
     local width_screen, height_screen = screen.getSize()
     screen.setCursorPos(((width_screen / 2) - (string.len(title) / 2)), 1)
@@ -122,19 +142,49 @@ function rs_info(screen)
     screen.setBackgroundColor(default_bg_color)
     local event, side, xPos, yPos = os.pullEvent("monitor_touch")
     if event == "monitor_touch" and (xPos >= width_screen - reboot_button_size) and (yPos <= reboot_button_size + 1) then
-        print("Pressed")
-        screen.clear()
-        os.reboot()
+        win_rs_info.setVisible(false)
+        win_desktop.setVisible(true)
     end
 end
 
-while true do
-    win_rs_info_visible = 1
-    if win_rs_info_visible == 1 then
-        rs_info(win_rs_info)
-        win_rs_info.setVisible(true)
-    else
-        win_rs_info.setVisible(false)
+--Desktop
+function drawRsInfoIcon(x, y, screen)
+    local RsInfoIcon = {
+        {desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, colors.yellow, colors.yellow, colors.yellow, colors.yellow, colors.yellow, colors.yellow, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, colors.orange, colors.orange, colors.yellow, colors.yellow, colors.orange, colors.orange, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, colors.yellow, colors.yellow, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, colors.yellow, colors.yellow, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, colors.yellow, colors.yellow, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, colors.yellow, colors.yellow, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, colors.yellow, colors.yellow, colors.yellow, colors.yellow, colors.yellow, colors.yellow, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, colors.orange, colors.orange, colors.orange, colors.orange, colors.orange, colors.orange, desktop_bg_color, desktop_bg_color},
+        {desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color, desktop_bg_color}}
+    screen.setBackgroundColor(colors.gray)
+    local icon_size = 0
+    for i, k in ipairs(RsInfoIcon) do
+        for j, l in ipairs(k) do
+            screen.setCursorPos(j+x, i+y)
+            screen.setBackgroundColor(l)
+            screen.write(space)
+            icon_size = j
+        end
     end
+    screen.setBackgroundColor(desktop_bg_color)
+    screen.setCursorPos(x+(icon_size+2), y+math.floor(icon_size/2))
+    screen.write("Rs Info")
+end
+
+function desktop(screen)
+    drawRsInfoIcon(1, 1, screen)
+end
+
+win_rs_info.setVisible(true)
+win_desktop.setVisible(false)
+
+--Main loop
+while true do
+    desktop(win_desktop)
+    rs_info(win_rs_info)
     sleep(1)
 end

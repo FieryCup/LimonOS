@@ -1,11 +1,13 @@
 
 local monitor = peripheral.find('monitor')
 local speaker = peripheral.find("speaker")
+monitor.setTextScale(1)
 local width, height = monitor.getSize()
 local space = " "
-local source_startup = "https://raw.githubusercontent.com/LimonchikTM/LimonOS/main/startup.lua"
-local source_main = "https://raw.githubusercontent.com/LimonchikTM/LimonOS/main/main.lua"
-local source_version = "https://raw.githubusercontent.com/LimonchikTM/LimonOS/main/version.lua"
+local source = "https://raw.githubusercontent.com/LimonchikTM/LimonOS/main/"
+local file_startup = "startup.lua"
+local file_main = "main.lua"
+local file_version = "version.lua"
 local text_color = colors.yellow
 local second_text_color = colors.white
 local message_text_color = colors.gray
@@ -33,30 +35,25 @@ local bg_color = colors.black
 local title = "LimonOS"
 local width, height = monitor.getSize()
 
+function checkURLFile(file)
+    local status, _ = http.checkURL(source..file)
+    monitor.setCursorPos(1, height)
+    monitor.write("Checking access to the source of file "..file.." ... "..tostring(status)..string.rep(space, width))
+    if status == false then
+        monitor.setCursorPos(1, height)
+        monitor.write("Error checking access to source of file "..file.." !"..string.rep(space, width))
+        printError("Error checking access to source of file "..file.." !"..string.rep(space, width))
+        exit()
+    end
+end
+
 function autoupdate()
     monitor.setTextColor(message_text_color)
-    local source_status, _ = http.checkURL(source_main)
-    monitor.setCursorPos(1, height)
-    monitor.write("Source check ... "..tostring(source_status)..string.rep(space, width))
-    if source_status == false then
-        monitor.setCursorPos(1, height)
-        monitor.write("Error source check!"..string.rep(space, width))
-    end
-    local second_source_status, _ = http.checkURL(source_main)
-    if second_source_status == false then
-        monitor.setCursorPos(1, height)
-        monitor.write("Error second source check!"..string.rep(space, width))
-    end
-    monitor.write("Second source check ... "..tostring(second_source_status)..string.rep(space, width))
-    local third_source_status, _ = http.checkURL(source_version)
-    if third_source_status == false then
-        monitor.setCursorPos(1, height)
-        monitor.write("Error third source check!"..string.rep(space, width))
-    end
-    monitor.setCursorPos(1, height)
-    monitor.write("Third source check ... "..tostring(third_source_status)..string.rep(space, width))
+    checkURLFile(file_startup)
+    checkURLFile(file_main)
+    checkURLFile(file_version)
     sleep(1)
-    local httpResponce_version = http.get(source_version)
+    local httpResponce_version = http.get(source..file_version)
     local allText_version = httpResponce_version.readAll()
     local source_v = tonumber(string.sub(allText_version, string.len("version =  ")))
     monitor.setCursorPos(1, height)
@@ -75,37 +72,31 @@ function autoupdate()
     monitor.write("Version check ... "..version_check_status..string.rep(space, width))
 end
 
+function downloadFile(file)
+    local fs_file = fs.open(file, "w")
+    local httpResponce = http.get(source..file)
+    if httpResponce then
+        local allText = httpResponce.readAll()
+        fs_file.write(allText)
+        fs_file.close()
+        monitor.setCursorPos(1, height)
+        monitor.write(file.." downloaded!"..string.rep(space, width))
+        httpResponce.close()
+    else
+        monitor.setCursorPos(1, height)
+        monitor.write("Unable to download the file "..file..string.rep(space, width))
+        print("Unable to download the file "..file)
+        print("Make sure you have the HTTP API enabled or")
+        print("an internet connection!")
+        exit()
+    end
+end
+
 function load_autoupdate_files()
     monitor.setTextColor(message_text_color)
-    local file_startup = "startup.lua"
-    local fs_startup = fs.open(file_startup, "w")
-    local httpResponce_startup = http.get(source_startup)
-    local allText_startup = httpResponce_startup.readAll()
-    fs_startup.write(allText_startup)
-    fs_startup.close()
-    monitor.setCursorPos(1, height)
-    monitor.write("Startup downloaded!"..string.rep(space, width))
-    httpResponce_startup.close()
-
-    local file_main = "main.lua"
-    local fs_main = fs.open(file_main, "w")
-    local httpResponce_main = http.get(source_main)
-    local allText_main = httpResponce_main.readAll()
-    fs_main.write(allText_main)
-    fs_main.close()
-    monitor.setCursorPos(1, height)
-    monitor.write("Main downloaded!"..string.rep(space, width))
-    httpResponce_main.close()
-
-    local file_version = "version.lua"
-    local fs_version = fs.open(file_version, "w")
-    local httpResponce_version = http.get(source_version)
-    local allText_version = httpResponce_version.readAll()
-    fs_version.write(allText_version)
-    fs_version.close()
-    monitor.setCursorPos(1, height)
-    monitor.write("Version downloaded!"..string.rep(space, width))
-    httpResponce_version.close()
+    downloadFile(file_startup)
+    downloadFile(file_main)
+    downloadFile(file_version)
     monitor.setCursorPos(1, height)
     monitor.write("New version downloaded!"..string.rep(space, width))
     sleep(0.5)
