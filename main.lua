@@ -7,6 +7,7 @@ local list_size = 36
 local list_horizontal_space = 2
 local progressbar_size = 20
 local reboot_button_size = 3
+local title = "RS Info"
 reboot_button_size = reboot_button_size - 1
 monitor.setTextColor(colors.white)
 monitor.setBackgroundColor(default_bg_color)
@@ -39,8 +40,8 @@ function rsbridge_nf_error()
 end
 ]]--
 while true do
-    monitor.setCursorPos(1, 1)
-    monitor.write("RS Info")
+    monitor.setCursorPos((width - string.len(title)) / 2, 1)
+    monitor.write(title)
     monitor.setCursorPos(1, 2)
     monitor.write("Energy:       ")
     monitor.write(progressbar(rs.getEnergyStorage(), rs.getMaxEnergyStorage(), colors.red, colors.orange, colors.green, colors.gray, progressbar_size))
