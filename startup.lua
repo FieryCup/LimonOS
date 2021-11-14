@@ -1,7 +1,6 @@
 
 local monitor = peripheral.find('monitor')
 local speaker = peripheral.find("speaker")
-local width, height = monitor.getSize()
 local space = " "
 local source_startup = "https://raw.githubusercontent.com/LimonchikTM/LimonOS/main/startup.lua"
 local source_main = "https://raw.githubusercontent.com/LimonchikTM/LimonOS/main/main.lua"
@@ -10,6 +9,7 @@ local text_color = colors.yellow
 local second_text_color = colors.white
 local message_text_color = colors.gray
 local text_scale = 1.5
+local width, height = monitor.getSize()
 monitor_text_scale = text_scale / 100 * width
 if monitor_text_scale < 0.5 then
     monitor_text_scale = 0.5
@@ -18,6 +18,7 @@ if monitor_text_scale > 5 then
     monitor_text_scale = 5
 end
 monitor.setTextScale(monitor_text_scale)
+local width, height = monitor.getSize()
 speaker.playSound("minecraft:block.note_block.bit")
 local subtitle_list_count = 7
 local subtitle_list = {
@@ -30,7 +31,7 @@ local subtitle_list = {
     "Life requires movement.",
 }
 local bg_color = colors.black
-local title = "Limonchik's Software"
+local title = "LimonOS"
 local width, height = monitor.getSize()
 
 function autoupdate()
