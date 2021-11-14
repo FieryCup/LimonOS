@@ -12,6 +12,9 @@ local list_horizontal_space = 2
 local progressbar_size = 20
 local reboot_button_size = 3
 local title = "RS Info"
+local visible = "Desktop"
+local RSInfo_logo_x = 1
+local RSInfo_logo_y = 1
 color = {
     c1 = colors.black,
     c2 = colors.blue,
@@ -140,11 +143,6 @@ function rs_info(screen)
     screen.write("   ")
     screen.setTextColor(colors.white)
     screen.setBackgroundColor(default_bg_color)
-    local event, side, xPos, yPos = os.pullEvent("monitor_touch")
-    if event == "monitor_touch" and (xPos >= width_screen - reboot_button_size) and (yPos <= reboot_button_size + 1) then
-        win_rs_info.setVisible(false)
-        win_desktop.setVisible(true)
-    end
 end
 
 --Desktop
@@ -176,15 +174,32 @@ function drawRsInfoIcon(x, y, screen)
 end
 
 function desktop(screen)
-    drawRsInfoIcon(1, 1, screen)
+    drawRsInfoIcon(RSInfo_logo_x, RSInfo_logo_y, screen)
 end
-
-win_rs_info.setVisible(true)
-win_desktop.setVisible(false)
 
 --Main loop
 while true do
-    desktop(win_desktop)
-    rs_info(win_rs_info)
+    if visible == "RS Info" then
+        rs_info(win_rs_info)
+        win_rs_info.setVisible(true)
+        win_desktop.setVisible(false)
+        print("RS Info")
+        local width_screen, height_screen = win_rs_info.getSize()
+        local event, side, xPos, yPos = os.pullEvent("monitor_touch")
+        if event == "monitor_touch" and (xPos >= width_screen - reboot_button_size) and (yPos <= reboot_button_size + 1) then
+            visible = "Desktop"
+        end
+    elseif visible == "Desktop" then
+        print("1-2")
+        desktop(win_desktop)
+        print("1-3")
+        win_desktop.setVisible(true)
+        win_rs_info.setVisible(false)
+        print("Desktop")
+        local event, side, xPos, yPos = os.pullEvent("monitor_touch")
+        if event == "monitor_touch" and (((xPos >= RSInfo_logo_x) and (xPos < RSInfo_logo_x + 10)) and ((yPos >= RSInfo_logo_y) and (yPos < RSInfo_logo_y + 10))) then
+            visible = "RS Info"
+        end
+    end
     sleep(1)
 end

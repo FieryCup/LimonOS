@@ -11,15 +11,7 @@ local file_version = "version.lua"
 local text_color = colors.yellow
 local second_text_color = colors.white
 local message_text_color = colors.gray
-local text_scale = 1.5
-monitor_text_scale = text_scale / 100 * width
-if monitor_text_scale < 0.5 then
-    monitor_text_scale = 0.5
-end
-if monitor_text_scale > 5 then
-    monitor_text_scale = 5
-end
-monitor.setTextScale(monitor_text_scale)
+
 speaker.playSound("minecraft:block.note_block.bit")
 local subtitle_list_count = 7
 local subtitle_list = {
@@ -31,6 +23,23 @@ local subtitle_list = {
     "We are ripples in time.",
     "Life requires movement.",
 }
+
+local subtitle_lenght = 1
+for i, k in ipairs(subtitle_list) do
+    if subtitle_lenght < k then
+        subtitle_lenght = k
+    end
+end
+setScale(subtitle_lenght)
+function setScale(string_length)
+    for i = 5, 0.5, -0.5 do
+        monitor.setTextScale(i)
+        if string_length <= monitor.getSize() then
+            break
+        end
+    end
+end
+
 local bg_color = colors.black
 local title = "LimonOS"
 local width, height = monitor.getSize()
