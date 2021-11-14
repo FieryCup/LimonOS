@@ -17,6 +17,7 @@ monitor.setTextScale(0.75)
 monitor.clear()
 
 local win_rs_info = window.create(monitor, 1, 1, width, height)
+
 function progressbar(n, max, color, warningColor, fullColor, secondColor, size, screen)
     local bar = math.floor((n / max) * size)
     local bar_inv = size - bar
@@ -127,9 +128,9 @@ end
 while true do
     win_rs_info_visible = 1
     if win_rs_info_visible == 1 then
-        win.setVisible(true)
+        win_rs_info.setVisible(true)
     else
-        win.setVisible(false)
+        win_rs_info.setVisible(false)
     end
     win_rs_info(win_rs_info)
     sleep(1)

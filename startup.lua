@@ -37,33 +37,33 @@ function autoupdate()
     monitor.setTextColor(message_text_color)
     local source_status, _ = http.checkURL(source_main)
     monitor.setCursorPos(1, height)
-    monitor.write("Source check ... "..tostring(source_status))
+    monitor.write("Source check ... "..tostring(source_status)..string.rep(space, width))
     if source_status == false then
         monitor.setCursorPos(1, height)
-        monitor.write("Error source check!")
+        monitor.write("Error source check!"..string.rep(space, width))
     end
     local second_source_status, _ = http.checkURL(source_main)
     if second_source_status == false then
         monitor.setCursorPos(1, height)
-        monitor.write("Error second source check!")
+        monitor.write("Error second source check!"..string.rep(space, width))
     end
-    monitor.write("Second source check ... "..tostring(second_source_status))
+    monitor.write("Second source check ... "..tostring(second_source_status)..string.rep(space, width))
     local third_source_status, _ = http.checkURL(source_version)
     if third_source_status == false then
         monitor.setCursorPos(1, height)
-        monitor.write("Error third source check!")
+        monitor.write("Error third source check!"..string.rep(space, width))
     end
     monitor.setCursorPos(1, height)
-    monitor.write("Third source check ... "..tostring(third_source_status))
+    monitor.write("Third source check ... "..tostring(third_source_status)..string.rep(space, width))
     sleep(1)
     local httpResponce_version = http.get(source_version)
     local allText_version = httpResponce_version.readAll()
     local source_v = tonumber(string.sub(allText_version, string.len("version =  ")))
     monitor.setCursorPos(1, height)
-    monitor.write("Source version "..source_v)
+    monitor.write("Source version "..source_v..string.rep(space, width))
     local version = tonumber(string.sub(fs.open("version.lua","r").readAll(), string.len("version =  ")))
     monitor.setCursorPos(1, height)
-    monitor.write("Version "..version)
+    monitor.write("Version "..version..string.rep(space, width))
     local version_check_status = "Error"
     if version < source_v then
         version_check_status = "Outdated version"
@@ -72,7 +72,7 @@ function autoupdate()
         version_check_status = "Latest version"
     end
     monitor.setCursorPos(1, height)
-    monitor.write("Version check ... "..version_check_status)
+    monitor.write("Version check ... "..version_check_status..string.rep(space, width))
 end
 
 function load_autoupdate_files()
@@ -84,7 +84,7 @@ function load_autoupdate_files()
     fs_startup.write(allText_startup)
     fs_startup.close()
     monitor.setCursorPos(1, height)
-    monitor.write("Startup downloaded!")
+    monitor.write("Startup downloaded!"..string.rep(space, width))
     httpResponce_startup.close()
 
     local file_main = "main.lua"
@@ -94,7 +94,7 @@ function load_autoupdate_files()
     fs_main.write(allText_main)
     fs_main.close()
     monitor.setCursorPos(1, height)
-    monitor.write("Main downloaded!")
+    monitor.write("Main downloaded!"..string.rep(space, width))
     httpResponce_main.close()
 
     local file_version = "version.lua"
@@ -104,13 +104,13 @@ function load_autoupdate_files()
     fs_version.write(allText_version)
     fs_version.close()
     monitor.setCursorPos(1, height)
-    monitor.write("Version downloaded!")
+    monitor.write("Version downloaded!"..string.rep(space, width))
     httpResponce_version.close()
     monitor.setCursorPos(1, height)
-    monitor.write("New version downloaded!")
+    monitor.write("New version downloaded!"..string.rep(space, width))
     sleep(0.5)
     monitor.setCursorPos(1, height)
-    monitor.write("Rebooting to apply changes...")
+    monitor.write("Rebooting to apply changes..."..string.rep(space, width))
     sleep(1)
     os.reboot()
 end
