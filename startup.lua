@@ -11,8 +11,14 @@ local file_version = "version.lua"
 local text_color = colors.yellow
 local second_text_color = colors.white
 local message_text_color = colors.gray
+text_scale = 1
 
-speaker.playSound("minecraft:block.note_block.bit")
+if speaker == nil then
+    print("[W] Speaker not found.")
+    visible = "Desktop"
+else
+    speaker.playSound("minecraft:block.note_block.bit")
+end
 local subtitle_list_count = 7
 local subtitle_list = {
     "Maybe a cup of tea?", 
@@ -26,19 +32,20 @@ local subtitle_list = {
 
 local subtitle_lenght = 1
 for i, k in ipairs(subtitle_list) do
-    if subtitle_lenght < k then
-        subtitle_lenght = k
+    if subtitle_lenght < string.len(k) then
+        subtitle_lenght = string.len(k)
     end
 end
-setScale(subtitle_lenght)
 function setScale(string_length)
     for i = 5, 0.5, -0.5 do
         monitor.setTextScale(i)
         if string_length <= monitor.getSize() then
+            text_scale = i
             break
         end
     end
 end
+setScale(subtitle_lenght)
 
 local bg_color = colors.black
 local title = "LimonOS"

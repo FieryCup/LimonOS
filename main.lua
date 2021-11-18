@@ -1,9 +1,19 @@
 
 local monitor = peripheral.find('monitor')
-local rs = peripheral.find('rsBridge')
-local speaker = peripheral.find("speaker")
 monitor.setTextScale(0.5)
 local width_monitor, height_monitor = monitor.getSize()
+--[[
+function setScale(string_length)
+    for i = 5, 0.5, -0.5 do
+        monitor.setTextScale(i)
+        if string_length <= monitor.getSize() then
+            text_scale = i
+            break
+        end
+    end
+end
+setScale(30)
+]]--
 local space = " "
 local default_bg_color = colors.black
 local desktop_bg_color = colors.gray
@@ -15,6 +25,10 @@ local title = "RS Info"
 local visible = "Desktop"
 local RSInfo_logo_x = 1
 local RSInfo_logo_y = 1
+message = {
+    rsbridge_not_found = '[W] RS Bridge not found.',
+    speaker_not_found = '[W] Speaker not found.'
+}
 color = {
     c1 = colors.black,
     c2 = colors.blue,
@@ -75,34 +89,38 @@ function rs_info(screen)
     screen.write(title)
     screen.setCursorPos(1, 2)
     screen.write("Energy:       ")
-    progressbar(rs.getEnergyStorage(), rs.getMaxEnergyStorage(), colors.red, colors.orange, colors.green, colors.gray, progressbar_size, screen)
+    progressbar(rsBridge.getEnergyStorage(), rsBridge.getMaxEnergyStorage(), colors.red, colors.orange, colors.green, colors.gray, progressbar_size, screen)
     screen.setBackgroundColor(default_bg_color)
-    screen.write(" "..rs.getEnergyStorage().." / "..rs.getMaxEnergyStorage().." "..rs.getEnergyUsage().." FE/t".."               ")
+    screen.write(" "..rsBridge.getEnergyStorage().." / "..rsBridge.getMaxEnergyStorage().." "..rsBridge.getEnergyUsage().." FE/t".."               ")
     screen.setCursorPos(1, 3)
-    list = rs.listItems()
+    list = rsBridge.listItems()
     local item_count = 0
     for i, item in ipairs(list) do
         item_count = item_count + item.amount
     end
     screen.write("Item memory:  ")
-    progressbar(item_count, rs.getMaxItemDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen)
+    progressbar(item_count, rsBridge.getMaxItemDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen)
     screen.setBackgroundColor(default_bg_color)
-    screen.write(" "..item_count.." / "..rs.getMaxItemDiskStorage().."               ")
+    screen.write(" "..item_count.." / "..rsBridge.getMaxItemDiskStorage().."               ")
     screen.setCursorPos(1, 4)
-    fluid_list = rs.listFluids()
+    fluid_list = rsBridge.listFluids()
     local fluid_count = 0
     for i, fluid in ipairs(fluid_list) do
         fluid_count = fluid_count + fluid.amount
     end
-    if math.floor((item_count / rs.getMaxItemDiskStorage()) * 100) > 100 / 1.25 then
-        speaker.playSound("minecraft:block.bell.use")
+    if item_count / rsBridge.getMaxItemDiskStorage() > 0.8 then
+        if speaker == nil then
+            print(message.speaker_not_found)
+        else
+            speaker.playSound("minecraft:block.bell.use")
+        end
     end
     screen.write("Fluid memory: ")
-    progressbar(fluid_count, rs.getMaxFluidDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen)
+    progressbar(fluid_count, rsBridge.getMaxFluidDiskStorage(), colors.green, colors.orange, colors.red, colors.gray, progressbar_size, screen)
     screen.setBackgroundColor(default_bg_color)
-    screen.write(" "..fluid_count.." / "..rs.getMaxFluidDiskStorage().."               ")
+    screen.write(" "..fluid_count.." / "..rsBridge.getMaxFluidDiskStorage().."               ")
     screen.setCursorPos(1, 4)
-    list = rs.listItems()
+    list = rsBridge.listItems()
     table.sort(list, function(a,b) return a.amount > b.amount end)
     local list_size_h = 0
     for i, item in ipairs(list) do
@@ -179,27 +197,37 @@ end
 
 --Main loop
 while true do
+    rsBridge = peripheral.find('rsBridge')
+    speaker = peripheral.find("speaker")
+    local timer = os.startTimer(1)
+    local width_monitor, height_monitor = monitor.getSize()
+    local event, side, xPos, yPos = os.pullEvent()
+    if event == "timer" then
+          if arg == timer then
+            i = i + 1
+            print(i)
+            timer = os.startTimer(1)
+          end
+    elseif event == "monitor_touch" and (((xPos >= RSInfo_logo_x) and (xPos < RSInfo_logo_x + 10)) and ((yPos >= RSInfo_logo_y) and (yPos < RSInfo_logo_y + 10))) then
+        visible = "RS Info"
+    elseif event == "monitor_touch" and (xPos >= width_monitor - reboot_button_size) and (yPos <= reboot_button_size + 1) then
+        visible = "Desktop"
+    end
     if visible == "RS Info" then
-        rs_info(win_rs_info)
-        win_rs_info.setVisible(true)
-        win_desktop.setVisible(false)
-        print("RS Info")
-        local width_screen, height_screen = win_rs_info.getSize()
-        local event, side, xPos, yPos = os.pullEvent("monitor_touch")
-        if event == "monitor_touch" and (xPos >= width_screen - reboot_button_size) and (yPos <= reboot_button_size + 1) then
+        if rsBridge == nil then
+            print(message.rsbridge_not_found)
             visible = "Desktop"
+        else
+            rs_info(win_rs_info)
+            win_rs_info.redraw()
+            win_rs_info.setVisible(true)
+            win_desktop.setVisible(false)
         end
     elseif visible == "Desktop" then
-        print("1-2")
         desktop(win_desktop)
-        print("1-3")
+        win_desktop.redraw()
         win_desktop.setVisible(true)
         win_rs_info.setVisible(false)
-        print("Desktop")
-        local event, side, xPos, yPos = os.pullEvent("monitor_touch")
-        if event == "monitor_touch" and (((xPos >= RSInfo_logo_x) and (xPos < RSInfo_logo_x + 10)) and ((yPos >= RSInfo_logo_y) and (yPos < RSInfo_logo_y + 10))) then
-            visible = "RS Info"
-        end
     end
     sleep(1)
 end
